@@ -39,6 +39,8 @@ return value.OfFirstNotNil(ptr1, ptr2)
 ```
 If you need a non-zero default value, there are `OfOrDefault` and `OfFirstNotNilOrDefault` variants as well!
 
+If you want to receive an error if all pointers are nil, there is `OfFirstNotNilOrError` variant available.
+
 ## How to use
 
 > By the spirit of "a little copying is better than a little dependency", I encourage you to
@@ -64,5 +66,22 @@ import "github.com/mrkagelui/value"
 func main() {
 	var ptr *int
 	print(value.Of(ptr))
+}
+```
+
+## Frequently Asked Question
+
+### Why is there not `OfOrError`?
+
+Because it would look like
+```go
+if v, err := value.OfOrError(p); err != nil {
+	// handle error
+}
+```
+which is hardly shorter than
+```go
+if p == nil {
+	// handle nil pointer
 }
 ```

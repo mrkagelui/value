@@ -1,6 +1,13 @@
 // Package value provides utilities to access value of pointers
 package value
 
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrAllNil = errors.New("all pointers are nil")
+
 // Of returns the pointed value of p, if p is nil, returns the zero value
 func Of[T any](p *T) T {
 	var v T
@@ -39,4 +46,16 @@ func OfFirstNotNilOrDefault[T any](def T, ptrs ...*T) T {
 		}
 	}
 	return def
+}
+
+// OfFirstNotNilOrError returns the pointed value of the first not nil pointer given
+// if all pointers are nil, returns an error
+func OfFirstNotNilOrError[T any](ptrs ...*T) (T, error) {
+	var v T
+	for _, p := range ptrs {
+		if p != nil {
+			return *p, nil
+		}
+	}
+	return v, fmt.Errorf("%w", ErrAllNil)
 }

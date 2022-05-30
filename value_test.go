@@ -1,6 +1,7 @@
 package value
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -8,6 +9,20 @@ func equals[T comparable](t *testing.T, got, want T) {
 	t.Helper()
 	if got != want {
 		t.Errorf("got: %v, want: %v", got, want)
+	}
+}
+
+func errorIs(t *testing.T, err error, wantErr error) {
+	t.Helper()
+	if !errors.Is(err, wantErr) {
+		t.Error("err is not expected")
+	}
+}
+
+func errorIsNil(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Error("unexpected error")
 	}
 }
 
@@ -244,5 +259,62 @@ func TestOfFirstNotNilOrDefault(t *testing.T) {
 		}
 		var p *player
 		equals(t, OfFirstNotNilOrDefault(player{"I have never known defeat"}, p, nil, nil), player{"I have never known defeat"})
+	})
+}
+
+func TestOfFirstNotNilOrError(t *testing.T) {
+	t.Run("int", func(t *testing.T) {
+		num := 24
+		n, err := OfFirstNotNilOrError[int](nil, &num)
+		equals(t, n, num)
+		errorIsNil(t, err)
+	})
+	t.Run("nil int ptr", func(t *testing.T) {
+		var numPtr *int
+		n, err := OfFirstNotNilOrError(numPtr, numPtr, nil)
+		equals(t, n, 0)
+		errorIs(t, err, ErrAllNil)
+	})
+	t.Run("string", func(t *testing.T) {
+		title := "maidenless"
+		s, err := OfFirstNotNilOrError[string](nil, &title)
+		equals(t, s, title)
+		errorIsNil(t, err)
+	})
+	t.Run("nil string ptr", func(t *testing.T) {
+		var title *string
+		s, err := OfFirstNotNilOrError(title, title, nil)
+		equals(t, s, "")
+		errorIs(t, err, ErrAllNil)
+	})
+	t.Run("boolean", func(t *testing.T) {
+		b := true
+		bl, err := OfFirstNotNilOrError[bool](nil, &b)
+		equals(t, bl, b)
+		errorIsNil(t, err)
+	})
+	t.Run("nil boolean ptr", func(t *testing.T) {
+		var b *bool
+		bl, err := OfFirstNotNilOrError(b, b, nil)
+		equals(t, bl, false)
+		errorIs(t, err, ErrAllNil)
+	})
+	t.Run("struct", func(t *testing.T) {
+		type player struct {
+			title string
+		}
+		p := player{"foul tarnished"}
+		pl, err := OfFirstNotNilOrError[player](nil, &p, &player{"thy strength befits a crown"})
+		equals(t, pl, p)
+		errorIsNil(t, err)
+	})
+	t.Run("nil struct ptr", func(t *testing.T) {
+		type player struct {
+			title string
+		}
+		var p *player
+		pl, err := OfFirstNotNilOrError(p, nil, nil)
+		equals(t, pl, player{})
+		errorIs(t, err, ErrAllNil)
 	})
 }
