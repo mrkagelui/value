@@ -12,7 +12,7 @@
 
 ## Why this utility? 
 
-Because I bet you are wary of
+Because I bet you are weary of
 ```go
 var v T
 if ptr != nil {
@@ -47,7 +47,7 @@ If you want to receive an error if all pointers are nil, there is `OfFirstNotNil
 > simply copy the `Of`/`OfFirstNotNil` functions in your project. However, if you don't mind
 > having this dependency:
 
-__As this implementation relies on generics, you need to be using Go >1.18.__
+__As this implementation relies on generics, you need to be using Go >=1.18.__
 
 1. With Go installed, run
 ```commandline
